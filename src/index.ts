@@ -2,11 +2,9 @@
     Path + Filename: src/index.ts
 */
 
-import * as https from 'https';
+import {fetchMatchHistory} from './fetchMatch.js'
 
-https
-    .get('')
+let x = await fetchMatchHistory('EUW1_6313527480', 'euw1')
 
-let x : number = 48
-
+console.log("DISPLAYING")
 console.log(x)
