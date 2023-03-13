@@ -8,5 +8,7 @@
 	"author": "SpyNight",
 	"devDependencies": {
 		"@types/node": ">=18.15.2"
+	},
+	"dependencies": {
 	}
 }

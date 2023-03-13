@@ -2,7 +2,7 @@
     Path + Filename: src/fetchMatch.ts
 */
 
-import {FetchMatchHistoryType} from './fetchMatchHistory_type'
+import {FetchMatchHistoryType} from './fetchMatchHistory_type.js'
 
 export async function fetchMatchHistory(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType> {
     const url = `https://4nuo1ouibd.execute-api.eu-west-3.amazonaws.com/csw_api_proxy/match/${summonerRegion.toLowerCase()}/${matchId}`
