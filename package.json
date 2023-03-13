@@ -1,0 +1,12 @@
+{
+	"name": "sn_forecast_engine",
+	"version": "0.0.1",
+	"description": "League of legends Forecast",
+	"scripts": {},
+	"type": "module",
+	"keywords": [],
+	"author": "SpyNight",
+	"devDependencies": {
+		"@types/node": ">=18.15.2"
+	}
+}

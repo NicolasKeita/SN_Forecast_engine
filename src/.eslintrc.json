@@ -1,0 +1,46 @@
+{
+	"env": {
+		"browser": true,
+		"es2022": true,
+		"jest/globals": true
+	},
+	"extends": [
+		"plugin:react/recommended",
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:react-hooks/recommended",
+		"prettier"
+	],
+	"overrides": [
+		{
+			"files": ["*.ts", "*.tsx"],
+			"rules": {"no-undef": "off"}
+		}
+	],
+	"parserOptions": {
+		"ecmaVersion": 2021,
+		"sourceType": "module",
+		"parser": "@typescript-eslint/parser",
+		"project": ["./tsconfig.json"]
+	},
+	"ignorePatterns": ["webpack.config.js", "overwolf.webpack.js", "jest.config.js", "__tests__/", "__testsUtils__", "node_modules/", "dev_utils/"],
+	"plugins": [
+		"react",
+		"html",
+		"react-hooks",
+		"@typescript-eslint",
+		"jest",
+		"only-warn"
+	],
+	"rules": {
+		"react-hooks/exhaustive-deps": "warn",
+		"react-hooks/rules-of-hooks": "warn",
+		"no-unexpected-multiline": "warn",
+
+		"eqeqeq": "off",
+		"@typescript-eslint/ban-ts-comment": "off",
+		"@typescript-eslint/no-empty-function": "off",
+		"@typescript-eslint/naming-convention": "off",
+		"@typescript-eslint/explicit-module-boundary-types": "off"
+	}
+}

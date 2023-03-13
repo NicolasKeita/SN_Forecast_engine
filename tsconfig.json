@@ -1,0 +1,68 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"baseUrl": "./src",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"jsx": "react-jsx",
+		"lib": [
+			"dom",
+			"dom.iterable",
+			"esnext"
+		],
+		"module": "esNext",
+		"moduleResolution": "node",
+		"noEmit": false,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": false,
+		"outDir": "./dist",
+		"paths": {
+			"@public/*": [
+				"../public/*"
+			],
+			"@utils/*": [
+				"../src/desktop/utils/*"
+			],
+			"@background/*": [
+				"../src/background/*"
+			],
+			"@desktop/*": [
+				"../src/desktop/*"
+			],
+			"@settings/*": [
+				"../src/settings/*"
+			]
+		},
+		"removeComments": true,
+		"resolveJsonModule": true,
+		"rootDir": "./",
+		"rootDirs": [
+			"src"
+		],
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"target": "es2022",
+		"types": [
+			"@overwolf/types",
+			"node",
+			"jest",
+			"webpack-env",
+			"@testing-library/jest-dom"
+		]
+	},
+	"exclude": [
+		"node_modules",
+		"__tests__/*",
+		"__testsUtils__/*"
+	],
+	"include": [
+		"index.d.ts",
+		"node_modules/@overwolf/types/owads.d.ts",
+		"owads.ts",
+		"src/types/owads.ts",
+		"src/"
+	]
+}
