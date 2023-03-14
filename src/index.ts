@@ -5,7 +5,7 @@
 import fs from 'fs'
 
 import {fetchMatchHistory} from './fetchMatch.js'
-import {FetchMatchHistoryType, Participant, Team} from './fetchMatchHistory_type.js'
+import {FetchMatchHistoryType, Participant} from './fetchMatchHistory_type.js'
 import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
 
 const matchId = 'EUW1_6313527480'
@@ -20,20 +20,20 @@ type Forecast = {
     matchId : string,
     region : string,
     winner : WinningTeam,
-    teams : string[][]
+    teams : number[][]
     winPercentage : number,
 }
 
-function splitParticipantsIntoTeams(participants : Participant[]) : string[][] {
+function splitParticipantsIntoTeams(participants : Participant[]) : number[][] {
     const teamOneId = participants[0].teamId
-    const teamOne : string[] = []
-    const teamTwo : string[] = []
+    const teamOne : number[] = []
+    const teamTwo : number[] = []
 
     for (const participant of participants) {
         if (participant.teamId == teamOneId) {
-            teamOne.push(participant.championName)
+            teamOne.push(participant.championId)
         } else {
-            teamTwo.push(participant.championName)
+            teamTwo.push(participant.championId)
         }
 
     }
@@ -75,6 +75,7 @@ function saveForecastToJson(forecast) : number {
 async function my_main() {
     let matchInfos = await fetchMatchHistory(matchId, region)
     const forecast = createForecast(matchId, region, matchInfos)
+    console.log(forecast.winPercentage)
     const totalAmountOfForecast = saveForecastToJson(forecast)
     console.log(totalAmountOfForecast)
 }

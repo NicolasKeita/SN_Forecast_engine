@@ -6,14 +6,26 @@
 import {Team} from './fetchMatchHistory_type.js'
 import allChamps from './allChampions.json' assert { type: 'json' }
 //TODO do a type check for json ? would help to narrow/secure deferencing
+//TODO convert allChamps id of the champion to number instead of string
 
-export function computeWinPercentage(teamOne : string[], teamTwo : string[]): number {
-	for (const participantChampName of teamOne) {
-		Object.values(allChamps).find((champ) => participantChampName == champ.name)
+export function computeWinPercentage(teamOne : number[], teamTwo : number[]): number {
+	const teamOneScore : number[] = []
+	const teamTwoScore : number[] = []
+	for (const participantChampId of teamOne) {
+		const champ = Object.values(allChamps).find((champ) => participantChampId == Number(champ.id))
+		if (champ)
+			teamOneScore.push(champ.opScore_CSW)
+		else
+			console.error("No champ found", participantChampId)
 	}
-	// allies[actorCellId].champ = allChamps.find((champ) => champ.id == championId) || getDefaultChampion()
-	// allies[actorCellId].scoreDisplayed = allies[actorCellId].champ.opScore_user || 50
-	return computeWinPercentageScore([1], [2])
+	for (const participantChampId of teamTwo) {
+		const champ = Object.values(allChamps).find((champ) => participantChampId == Number(champ.id))
+		if (champ)
+			teamTwoScore.push(champ.opScore_CSW)
+		else
+			console.error("No champ found", participantChampId)
+	}
+	return computeWinPercentageScore(teamOneScore, teamTwoScore)
 }
 
 function computeWinPercentageScore(alliesScores: number[], enemiesScores: number[]): number {
