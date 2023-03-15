@@ -7,8 +7,7 @@ import fs from 'fs'
 import {fetchMatchHistory} from './fetchMatch.js'
 import {FetchMatchHistoryType, Participant} from './fetchMatchHistory_type.js'
 import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
-
-// const matchId = 'EUW1_6313527480'
+import {openJson} from './openJson.js'
 
 const matchId = 'EUW1_6316539626'
 const region = 'euw1'
@@ -54,40 +53,29 @@ function createForecast(matchId : string, region : string,
     }
 }
 
-type AllForecastType = {
+type AccumulatedForecasts = {
     amount : number,
     latestMatchId : string,
     totalCorrectForecast : number,
     correctForecastPercentage : number
 }
 
-function isAllForecastType(forecast : any) : forecast is AllForecastType {
-    return (forecast as AllForecastType).amount !== undefined
-}
-
-function saveForecastToJson(forecast) : number {
-    const allForecastString : string = fs.readFileSync('all_forecast.json', {encoding: 'utf8', flag: 'r'})
-    const allForecast : AllForecastType = JSON.parse(allForecastString)
-    if (!isAllForecastType(allForecast)) {
-        console.error("Not a forecast")
-        return -1
-    }
-    allForecast.amount += 1
-    allForecast.latestMatchId = matchId
+function accumulateForecast(accumulatedForecasts : AccumulatedForecasts, forecast : Forecast) {
+    accumulatedForecasts.amount += 1
+    accumulatedForecasts.latestMatchId = matchId
     if ((forecast.winPercentage > 50 && forecast.winner == WinningTeam.TeamOne)
         || (forecast.winPercentage < 50 && forecast.winner == WinningTeam.TeamTwo))
-        allForecast.totalCorrectForecast += 1
-    allForecast.correctForecastPercentage = (allForecast.totalCorrectForecast / allForecast.amount) * 100
-    fs.writeFileSync('all_forecast.json', JSON.stringify(allForecast, null, 2))
-    return allForecast.amount
+        accumulatedForecasts.totalCorrectForecast += 1
+    accumulatedForecasts.correctForecastPercentage =
+        (accumulatedForecasts.totalCorrectForecast / accumulatedForecasts.amount) * 100
 }
 
 async function my_main() {
-    let matchInfos = await fetchMatchHistory(matchId, region)
+    const matchInfos = await fetchMatchHistory(matchId, region)
     const forecast = createForecast(matchId, region, matchInfos)
-    console.log(forecast.winPercentage)
-    const totalAmountOfForecast = saveForecastToJson(forecast)
-    console.log(totalAmountOfForecast)
+    const accumulatedForecasts = openJson<AccumulatedForecasts>('accumulatedForecasts.json')
+    accumulateForecast(accumulatedForecasts, forecast)
+    fs.writeFileSync('accumulatedForecasts.json', JSON.stringify(accumulatedForecasts, null, 3))
 }
 
 await my_main()
