@@ -64,9 +64,7 @@ function addBonusScoreTagToTeamOne() {
 
 export function computeWinPercentage(teamOne : number[], teamTwo : number[]): number {
 	const teamOneChamps : Champion[] = []
-	const teamOneScore : number[] = []
 	const teamTwoChamps : Champion[] = []
-	const teamTwoScore : number[] = []
 	for (const participantChampId of teamOne) {
 		const champ = Object.values(allChampsWithTags).find(champ => participantChampId == champ.id)
 		if (champ)
@@ -82,9 +80,9 @@ export function computeWinPercentage(teamOne : number[], teamTwo : number[]): nu
 			console.error("No champ found", participantChampId)
 	}
 	for (const teamOneMember of teamOneChamps) {
-		teamOneMember.opScore_CSW = teamOneMember.opScore_CSW + getTagsBonuses(teamOneMember, teamTwoChamps)
+		teamOneMember.opScore_user = teamOneMember.opScore_CSW + getTagsBonuses(teamOneMember, teamTwoChamps)
 	}
-	return computeWinPercentageScore(teamOneChamps.map(({opScore_CSW}) => opScore_CSW), teamTwoChamps.map(({opScore_CSW}) => opScore_CSW))
+	return computeWinPercentageScore(teamOneChamps.map(({opScore_user}) => opScore_user || 50), teamTwoChamps.map(({opScore_CSW}) => opScore_CSW))
 }
 
 function computeWinPercentageScore(alliesScores: number[], enemiesScores: number[]): number {

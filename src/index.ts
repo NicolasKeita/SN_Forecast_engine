@@ -25,19 +25,22 @@ type Forecast = {
     winPercentage : number,
 }
 
+type AccumulatedForecasts = {
+    amount : number,
+    latestMatchId : string,
+    totalCorrectForecast : number,
+    correctForecastPercentage : number
+}
+
 function splitParticipantsIntoTeams(participants : Participant[]) : number[][] {
-    const teamOneId = participants[0].teamId
     const teamOne : number[] = []
     const teamTwo : number[] = []
 
-    for (const participant of participants) {
-        if (participant.teamId == teamOneId) {
+    for (const participant of participants)
+        if (participant.teamId == participants[0].teamId)
             teamOne.push(participant.championId)
-        } else {
+        else
             teamTwo.push(participant.championId)
-        }
-
-    }
     return [teamOne, teamTwo]
 }
 
@@ -53,16 +56,9 @@ function createForecast(matchId : string, region : string,
     }
 }
 
-type AccumulatedForecasts = {
-    amount : number,
-    latestMatchId : string,
-    totalCorrectForecast : number,
-    correctForecastPercentage : number
-}
-
 function accumulateForecast(accumulatedForecasts : AccumulatedForecasts, forecast : Forecast) {
     accumulatedForecasts.amount += 1
-    accumulatedForecasts.latestMatchId = matchId
+    accumulatedForecasts.latestMatchId = forecast.matchId
     if ((forecast.winPercentage > 50 && forecast.winner == WinningTeam.TeamOne)
         || (forecast.winPercentage < 50 && forecast.winner == WinningTeam.TeamTwo))
         accumulatedForecasts.totalCorrectForecast += 1
@@ -70,12 +66,26 @@ function accumulateForecast(accumulatedForecasts : AccumulatedForecasts, forecas
         (accumulatedForecasts.totalCorrectForecast / accumulatedForecasts.amount) * 100
 }
 
+function getNewMatchId(matchId : string) {
+    const newMatchIdNumber = Number(matchId.split('_')[1]) + 1
+    return matchId.split('_')[0] + '_' + newMatchIdNumber
+}
+
 async function my_main() {
-    const matchInfos = await fetchMatchHistory(matchId, region)
-    const forecast = createForecast(matchId, region, matchInfos)
-    const accumulatedForecasts = openJson<AccumulatedForecasts>('accumulatedForecasts.json')
-    accumulateForecast(accumulatedForecasts, forecast)
-    fs.writeFileSync('accumulatedForecasts.json', JSON.stringify(accumulatedForecasts, null, 3))
+    let matchId = 'EUW1_6316539626'
+    //let matchId = 'EUW1_6316539626'
+    setInterval(async () => {
+        const matchInfos = await fetchMatchHistory(matchId, region)
+        if (matchInfos && matchInfos.info.queueId == 420) {
+            const forecast = createForecast(matchId, region, matchInfos)
+            const accumulatedForecasts = openJson<AccumulatedForecasts>('accumulatedForecasts.json')
+            accumulateForecast(accumulatedForecasts, forecast)
+            fs.writeFileSync('accumulatedForecasts.json', JSON.stringify(accumulatedForecasts, null, 3))
+        } else if (matchInfos && matchInfos.info.queueId != 420) {
+            console.log('game ' + matchId + ' queueId : ' + matchInfos.info.queueId)
+        }
+        matchId = getNewMatchId(matchId)
+    }, 5000)
 }
 
 await my_main()

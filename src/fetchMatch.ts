@@ -4,7 +4,7 @@
 
 import {FetchMatchHistoryType} from './fetchMatchHistory_type.js'
 
-export async function fetchMatchHistory(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType> {
+export async function fetchMatchHistory(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType | null> {
     const url = `https://4nuo1ouibd.execute-api.eu-west-3.amazonaws.com/csw_api_proxy/match/${summonerRegion.toLowerCase()}/${matchId}`
     let res: Response
     try {
@@ -15,6 +15,10 @@ export async function fetchMatchHistory(matchId: string, summonerRegion: string)
         })
         if (res.status == 429) {
             throw new Error('429 code ')
+        }
+        else if (res.status == 404) {
+            console.error("matchId: " + matchId + " = " + res.statusText)
+            return null
         }
     } catch (e) {
         throw new Error(
