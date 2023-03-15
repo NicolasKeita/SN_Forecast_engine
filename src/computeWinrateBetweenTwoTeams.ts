@@ -4,7 +4,7 @@
 
 import allChamps from "./allChampions.json" assert {type: "json"}
 import {Champion, championConstructor} from './Champion.js'
-import {ChampionAttributes, ChampionTagsType} from './champTags.js'
+import {ChampionAttributes, ChampionTagsType, getTagsBonuses} from './champTags.js'
 //TODO do a type check for json ? would help to narrow/secure deferencing
 //TODO convert allChamps id of the champion to number instead of string
 
@@ -52,30 +52,39 @@ const allChampsWithTags = Object.values(allChamps).map((champ) => {
 		champ.role,
 		champ.image,
 		'',
-		Number(champ.id),
+		champ.id,
 		champ.nameFormatted,
 		adjustTags(champ.tags as ChampionTagsType)
 	)
 })
 
+function addBonusScoreTagToTeamOne() {
+	// for (const teamOneMember of teamOne)
+}
+
 export function computeWinPercentage(teamOne : number[], teamTwo : number[]): number {
+	const teamOneChamps : Champion[] = []
 	const teamOneScore : number[] = []
+	const teamTwoChamps : Champion[] = []
 	const teamTwoScore : number[] = []
 	for (const participantChampId of teamOne) {
-		const champ = Object.values(allChamps).find((champ) => participantChampId == Number(champ.id))
+		const champ = Object.values(allChampsWithTags).find(champ => participantChampId == champ.id)
 		if (champ)
-			teamOneScore.push(champ.opScore_CSW)
+			teamOneChamps.push(champ)
 		else
 			console.error("No champ found", participantChampId)
 	}
 	for (const participantChampId of teamTwo) {
-		const champ = Object.values(allChampsWithTags).find((champ : Champion) => participantChampId == Number(champ.id))
+		const champ = Object.values(allChampsWithTags).find(champ => participantChampId == Number(champ.id))
 		if (champ)
-			teamTwoScore.push(champ.opScore_CSW)
+			teamTwoChamps.push(champ as Champion)
 		else
 			console.error("No champ found", participantChampId)
 	}
-	return computeWinPercentageScore(teamOneScore, teamTwoScore)
+	for (const teamOneMember of teamOneChamps) {
+		teamOneMember.opScore_CSW = teamOneMember.opScore_CSW + getTagsBonuses(teamOneMember, teamTwoChamps)
+	}
+	return computeWinPercentageScore(teamOneChamps.map(({opScore_CSW}) => opScore_CSW), teamTwoChamps.map(({opScore_CSW}) => opScore_CSW))
 }
 
 function computeWinPercentageScore(alliesScores: number[], enemiesScores: number[]): number {

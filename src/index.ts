@@ -8,7 +8,9 @@ import {fetchMatchHistory} from './fetchMatch.js'
 import {FetchMatchHistoryType, Participant} from './fetchMatchHistory_type.js'
 import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
 
-const matchId = 'EUW1_6313527480'
+// const matchId = 'EUW1_6313527480'
+
+const matchId = 'EUW1_6316539626'
 const region = 'euw1'
 
 enum WinningTeam {
