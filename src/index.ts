@@ -55,7 +55,10 @@ function createForecast(matchId : string, region : string,
 }
 
 type AllForecastType = {
-    amount : number
+    amount : number,
+    latestMatchId : string,
+    totalCorrectForecast : number,
+    correctForecastPercentage : number
 }
 
 function isAllForecastType(forecast : any) : forecast is AllForecastType {
@@ -70,7 +73,12 @@ function saveForecastToJson(forecast) : number {
         return -1
     }
     allForecast.amount += 1
-    fs.writeFileSync('all_forecast.json', JSON.stringify(allForecast))
+    allForecast.latestMatchId = matchId
+    if ((forecast.winPercentage > 50 && forecast.winner == WinningTeam.TeamOne)
+        || (forecast.winPercentage < 50 && forecast.winner == WinningTeam.TeamTwo))
+        allForecast.totalCorrectForecast += 1
+    allForecast.correctForecastPercentage = (allForecast.totalCorrectForecast / allForecast.amount) * 100
+    fs.writeFileSync('all_forecast.json', JSON.stringify(allForecast, null, 2))
     return allForecast.amount
 }
 
