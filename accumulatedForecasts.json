@@ -1,5 +1,6 @@
 {
-   "amount": 0,
-   "latestMatchId": "EUW1_6316541636",
-   "totalCorrectForecast": 0
+   "amount": 7,
+   "latestMatchId": "EUW1_6316541834",
+   "totalCorrectForecast": 5,
+   "correctForecastPercentage": 71.42857142857143
 }

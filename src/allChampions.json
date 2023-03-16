@@ -86,7 +86,7 @@
     }
   },
   "Alistar":{
-    "opScore_CSW":40,
+    "opScore_CSW":48,
     "role":"utility",
     "name":"Alistar",
     "image":"Alistar.png",
@@ -343,7 +343,7 @@
     }
   },
   "Braum":{
-    "opScore_CSW":40,
+    "opScore_CSW":42,
     "role":"utility",
     "name":"Braum",
     "image":"Braum.png",
