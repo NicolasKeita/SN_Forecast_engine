@@ -7,6 +7,8 @@
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
+//TODO look what's above, do it.
+
 export interface FetchMatchHistoryType {
 	metadata: Metadata;
 	info: Info;

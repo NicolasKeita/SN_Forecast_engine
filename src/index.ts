@@ -8,8 +8,11 @@ import {fetchMatchHistory} from './fetchMatch.js'
 import {FetchMatchHistoryType, Participant} from './fetchMatchHistory_type.js'
 import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
 import {openJson} from './openJson.js'
+import fetchRank from './LOL_API/fetchRank.js'
+import {Champion} from './Champion.js'
+import allChampions from './allChampions.json' assert {type: "json"}
 
-const matchId = 'EUW1_6316539626'
+//const matchId = 'EUW1_6316539626'
 const region = 'euw1'
 
 enum WinningTeam {
@@ -50,7 +53,7 @@ function createForecast(matchId : string, region : string,
     return {
         matchId: matchId,
         region: region,
-        winner: WinningTeam.TeamOne,
+        winner: matchInfos.info.participants[0].win ? WinningTeam.TeamOne : WinningTeam.TeamTwo,
         teams: [teamOne, teamTwo],
         winPercentage: computeWinPercentage(teamOne, teamTwo)
     }
@@ -71,20 +74,60 @@ function getNewMatchId(matchId : string) {
     return matchId.split('_')[0] + '_' + newMatchIdNumber
 }
 
-function getAverageRankingOfMatch(participants : Participant[]) {
-    for (const participant of participants) {
-        // getPlayerRank(participant.summonerId, 'RANKED_SOLO_5x5')
+async function isMatchRelevant(matchInfos: FetchMatchHistoryType): Promise<boolean> {
+    enum RelevantRanks {
+        "DIAMOND",
+        "PLATINUM",
+        "GOLD",
     }
-    return 'PLATINE'
-}
 
-function isMatchRelevant(matchInfos : FetchMatchHistoryType) : boolean {
     if (matchInfos.info.queueId != 420)
         return false
-    //TODO remove/rename below and do : if you see someone not a gold plat dia or silver just don't count the game.
-    const averageRank = getAverageRankingOfMatch(matchInfos.info.participants)
-    // console.log(averageRank)
+    for (let i = 0; i < 10; ++i) {
+        const participant = matchInfos.info.participants[i]
+        const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId)
+        if (!participantRank) {
+            console.log(`matchId: ${matchInfos.metadata.matchId} One guy was unranked`)
+            return false
+        }
+        if (participantRank && !(participantRank in RelevantRanks)) {
+            console.log(`matchId: ${matchInfos.metadata.matchId} ${participantRank} RANK not interesting`)
+            return false
+        }
+        if (i == 9)
+            console.log(`Player name : ${participant.summonerName} and his elo : ${participantRank}`)
+    }
     return true
+}
+
+function debugForecast(forecast : Forecast) {
+    console.log(`matchId: ${forecast.matchId} forecast accomplished`)
+    const teamOne : string[] = []
+    const teamTwo : string[] = []
+    const allChamps = allChampions
+    for (const champId of forecast.teams[0]) {
+        const champ = (Object.values(allChamps) as Champion[]).find(champ => champ.id == champId)
+        if (champ)
+            teamOne.push(champ.name)
+        else
+            teamOne.push(`champId not found ${champId}`)
+    }
+    for (const champId of forecast.teams[1]) {
+        const champ = (Object.values(allChamps) as Champion[]).find(champ => champ.id == champId)
+        if (champ)
+            teamTwo.push(champ.name)
+        else
+            teamTwo.push(`champId not found ${champId}`)
+    }
+    console.log("Team1")
+    console.log(teamOne)
+    console.log("Team2")
+    console.log(teamTwo)
+    if ((forecast.winPercentage > 50 && forecast.winner == WinningTeam.TeamOne)
+        || (forecast.winPercentage < 50 && forecast.winner == WinningTeam.TeamTwo))
+        console.log(`win percentage : ${forecast.winPercentage}% CORRECT winner is team ${forecast.winner + 1}`)
+    else
+        console.log(`win percentage : ${forecast.winPercentage}% INCORRECT winner is team ${forecast.winner + 1}`)
 }
 
 async function my_main() {
@@ -93,16 +136,17 @@ async function my_main() {
     //let matchId = 'EUW1_6316539626' my ranked flex 59%
     setInterval(async () => {
         const matchInfos = await fetchMatchHistory(matchId, region)
-        if (matchInfos && isMatchRelevant(matchInfos)) {
+        if (matchInfos && await isMatchRelevant(matchInfos)) {
             const forecast = createForecast(matchId, region, matchInfos)
+            debugForecast(forecast)
             const accumulatedForecasts = openJson<AccumulatedForecasts>('accumulatedForecasts.json')
             accumulateForecast(accumulatedForecasts, forecast)
             fs.writeFileSync('accumulatedForecasts.json', JSON.stringify(accumulatedForecasts, null, 3))
         } else if (matchInfos && matchInfos.info.queueId != 420) {
-            console.log('matchId: ' + matchId + ' unwanted queue id')
+            console.log('matchId: ' + matchId + ' unwanted queue id : ' + matchInfos.info.queueId)
         }
         matchId = getNewMatchId(matchId)
-    }, 2000)
+    }, 5000)
 }
 
 await my_main()
