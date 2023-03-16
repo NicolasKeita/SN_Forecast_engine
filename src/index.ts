@@ -4,8 +4,7 @@
 
 import fs from 'fs'
 
-import {fetchMatchHistory} from './fetchMatch.js'
-import {FetchMatchHistoryType, Participant} from './fetchMatchHistory_type.js'
+import {fetchMatch, FetchMatchHistoryType, Participant} from './fetchMatch.js'
 import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
 import {openJson} from './openJson.js'
 import fetchRank from './LOL_API/fetchRank.js'
@@ -135,7 +134,7 @@ async function my_main() {
     let matchId = accumulatedForecasts.latestMatchId
     //let matchId = 'EUW1_6316539626' my ranked flex 59%
     setInterval(async () => {
-        const matchInfos = await fetchMatchHistory(matchId, region)
+        const matchInfos = await fetchMatch(matchId, region)
         if (matchInfos && await isMatchRelevant(matchInfos)) {
             const forecast = createForecast(matchId, region, matchInfos)
             debugForecast(forecast)
