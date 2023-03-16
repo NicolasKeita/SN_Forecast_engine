@@ -71,21 +71,38 @@ function getNewMatchId(matchId : string) {
     return matchId.split('_')[0] + '_' + newMatchIdNumber
 }
 
+function getAverageRankingOfMatch(participants : Participant[]) {
+    for (const participant of participants) {
+        // getPlayerRank(participant.summonerId, 'RANKED_SOLO_5x5')
+    }
+    return 'PLATINE'
+}
+
+function isMatchRelevant(matchInfos : FetchMatchHistoryType) : boolean {
+    if (matchInfos.info.queueId != 420)
+        return false
+    //TODO remove/rename below and do : if you see someone not a gold plat dia or silver just don't count the game.
+    const averageRank = getAverageRankingOfMatch(matchInfos.info.participants)
+    // console.log(averageRank)
+    return true
+}
+
 async function my_main() {
-    let matchId = 'EUW1_6316539626'
-    //let matchId = 'EUW1_6316539626'
+    const accumulatedForecasts = openJson<AccumulatedForecasts>('accumulatedForecasts.json')
+    let matchId = accumulatedForecasts.latestMatchId
+    //let matchId = 'EUW1_6316539626' my ranked flex 59%
     setInterval(async () => {
         const matchInfos = await fetchMatchHistory(matchId, region)
-        if (matchInfos && matchInfos.info.queueId == 420) {
+        if (matchInfos && isMatchRelevant(matchInfos)) {
             const forecast = createForecast(matchId, region, matchInfos)
             const accumulatedForecasts = openJson<AccumulatedForecasts>('accumulatedForecasts.json')
             accumulateForecast(accumulatedForecasts, forecast)
             fs.writeFileSync('accumulatedForecasts.json', JSON.stringify(accumulatedForecasts, null, 3))
         } else if (matchInfos && matchInfos.info.queueId != 420) {
-            console.log('game ' + matchId + ' queueId : ' + matchInfos.info.queueId)
+            console.log('matchId: ' + matchId + ' unwanted queue id')
         }
         matchId = getNewMatchId(matchId)
-    }, 5000)
+    }, 2000)
 }
 
 await my_main()
