@@ -9,7 +9,7 @@ import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
 import fetchRank from './LOL_API/fetchRank.js'
 import {Champion} from './Champion.js'
 import allChampions from './allChampions.json' assert {type: "json"}
-import {openJson} from './my_JS_utils.js'
+import {mySetInterval, openJson} from './my_JS_utils.js'
 
 //const matchId = 'EUW1_6316539626'
 const region = 'euw1'
@@ -138,18 +138,11 @@ function getLastMatchIdAnalysed(filename : string) : string {
     return accumulatedForecasts.latestMatchId
 }
 
-
-async function my_setInterval(code: { (): Promise<void>; (): void }, period: number) {
-    const resetTime = Date.now() + period
-    await code()
-    setTimeout(my_setInterval, Math.max(0, resetTime - Date.now()), code, period)
-}
-
 //let matchId = 'EUW1_6316539626' my ranked flex 59%
 async function my_main() {
     let matchId = getLastMatchIdAnalysed(saveFilename)
 
-    const code = async () => {
+    const fetchForecastAndSave = async () => {
         const matchInfos = await fetchMatch(matchId, region)
         if (matchInfos && await isMatchRelevant(matchInfos)) {
             const forecast = createForecast(matchId, region, matchInfos)
@@ -162,24 +155,7 @@ async function my_main() {
         }
         matchId = getNewMatchId(matchId)
     }
-    await my_setInterval(code, 1 * 1000)
-
-    // const infiniteForecast = async () => {
-    //     const resetTime = Date.now() + 5 * 1000
-    //     const matchInfos = await fetchMatch(matchId, region)
-    //     if (matchInfos && await isMatchRelevant(matchInfos)) {
-    //         const forecast = createForecast(matchId, region, matchInfos)
-    //         debugForecast(forecast)
-    //         const accumulatedForecasts = openJson<AccumulatedForecasts>(saveFilename)
-    //         accumulateForecast(accumulatedForecasts, forecast)
-    //         fs.writeFileSync(saveFilename, JSON.stringify(accumulatedForecasts, null, 3))
-    //     } else if (matchInfos && matchInfos.info.queueId != 420) {
-    //         console.log('matchId: ' + matchId + ' unwanted queue id : ' + matchInfos.info.queueId)
-    //     }
-    //     matchId = getNewMatchId(matchId)
-    //     setTimeout(infiniteForecast, Math.max(0, resetTime - Date.now()))
-    // }
-    // await infiniteForecast()
+    await mySetInterval(fetchForecastAndSave, 1000)
 }
 
 await my_main()
