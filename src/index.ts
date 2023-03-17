@@ -84,7 +84,8 @@ async function isMatchRelevant(matchInfos: FetchMatchHistoryType): Promise<boole
         return false
     for (let i = 0; i < 10; ++i) {
         const participant = matchInfos.info.participants[i]
-        const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId)
+        const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId,
+            {amountAllowed :50, period :60 * 1000})
         if (!participantRank) {
             console.log(`matchId: ${matchInfos.metadata.matchId} One guy was unranked`)
             return false
@@ -145,7 +146,7 @@ async function my_main() {
             console.log('matchId: ' + matchId + ' unwanted queue id : ' + matchInfos.info.queueId)
         }
         matchId = getNewMatchId(matchId)
-    }, 5000)
+}, 1000)
 }
 
 await my_main()

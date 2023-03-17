@@ -2,9 +2,35 @@
     Path + Filename: src/LOL_API/fetchRank.ts
 */
 
-import fs from 'fs'
+let amountOfRequest = 0
+let resetTime = -1
 
-async function fetchRank(matchId: string, summonerRegion: string): Promise<string | null> {
+// TODO move to indepepdnant file and put Limits to every fetch outthere
+type LimitsRate = {
+    amountAllowed : number,
+    period : number //in miliseconds
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+//TODO do a retry strategy
+async function fetchRank(matchId: string, summonerRegion: string, limits : LimitsRate): Promise<string | null> {
+    amountOfRequest += 1
+
+    if (Date.now() > resetTime) {
+        resetTime = Date.now() + limits.period
+        amountOfRequest = 1
+    } else {
+        if (amountOfRequest > limits.amountAllowed) {
+            console.error(`Maximun amount of request for FetchRank is being reached, waiting ${(resetTime - Date.now()) / 1000} seconds`)
+            // await sleep(resetTime - Date.now())
+            // return setTimeout(fetchRank, resetTime - Date.now(), matchId, summonerRegion, limits)
+        }
+    }
+
+    console.log("skipping awaiting")
     const url = `https://4nuo1ouibd.execute-api.eu-west-3.amazonaws.com/csw_api_proxy/fetchRank/${matchId}/${summonerRegion.toLowerCase()}`
     let res: Response
     try {
@@ -25,6 +51,7 @@ async function fetchRank(matchId: string, summonerRegion: string): Promise<strin
             'CSW_error: following call : fetch(' + url + ' caught' + ' error;  ' + e)
     }
     try {
+        const x = await res.json()
         const ranks : FetchRank[] = await res.json()
         for (const rank of ranks) {
             if (rank.queueType == 'RANKED_SOLO_5x5')

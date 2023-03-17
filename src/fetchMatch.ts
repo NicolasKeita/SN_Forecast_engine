@@ -2,7 +2,21 @@
     Path + Filename: src/fetchMatch.ts
 */
 
+import {doWithRetry} from 'do-with-retry'
+
 export async function fetchMatch(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType | null> {
+    return await doWithRetry(async retry => {
+        try {
+            return await fetchMatch_(matchId, summonerRegion)
+        } catch (e) {
+            retry(e)
+        }
+    }).catch(e => {
+        throw e.cause
+    }) as FetchMatchHistoryType | null
+}
+
+async function fetchMatch_(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType | null> {
     const url = `https://4nuo1ouibd.execute-api.eu-west-3.amazonaws.com/csw_api_proxy/match/${summonerRegion.toLowerCase()}/${matchId}`
     let res: Response
     try {
@@ -23,14 +37,16 @@ export async function fetchMatch(matchId: string, summonerRegion: string): Promi
             'CSW_error: following call : fetch(' + url + ' caught' + ' error;  ' + e)
     }
     try {
-        //const json = await res.json()
-        return Convert.toFetchMatchHistoryType(await res.text())
+        const json = await res.json()
+        // console.log(json)
+        return json
+        //return Convert.toFetchMatchHistoryType(await res.text())
     } catch (err: unknown) {
         const e = err as Error
         console.error(`Error while converting fetchMatch result to json. fetchMatch response number : ${res.status} and message : ${e.message}`)
         console.error(`Response body`)
         console.error(res)
-        return null
+        throw new Error('err here TODO change message')
     }
 }
 
