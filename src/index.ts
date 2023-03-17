@@ -84,8 +84,10 @@ async function isMatchRelevant(matchInfos: FetchMatchHistoryType): Promise<boole
         return false
     for (let i = 0; i < 10; ++i) {
         const participant = matchInfos.info.participants[i]
+        console.log("FetchingRank Beginning h")
         const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId,
-            {amountAllowed :50, period :60 * 1000})
+            {amountAllowed :1, period :60 * 1000})
+        console.log("FetchingRank endingg")
         if (!participantRank) {
             console.log(`matchId: ${matchInfos.metadata.matchId} One guy was unranked`)
             return false
@@ -134,7 +136,9 @@ async function my_main() {
     const accumulatedForecasts = openJson<AccumulatedForecasts>('accumulatedForecasts.json')
     let matchId = accumulatedForecasts.latestMatchId
     //let matchId = 'EUW1_6316539626' my ranked flex 59%
-    setInterval(async () => {
+    const my_function = async () => {
+        const resetTime = Date.now() + 5 * 1000
+        console.log("FIRING")
         const matchInfos = await fetchMatch(matchId, region)
         if (matchInfos && await isMatchRelevant(matchInfos)) {
             const forecast = createForecast(matchId, region, matchInfos)
@@ -146,7 +150,9 @@ async function my_main() {
             console.log('matchId: ' + matchId + ' unwanted queue id : ' + matchInfos.info.queueId)
         }
         matchId = getNewMatchId(matchId)
-}, 1000)
+        setTimeout(my_function, Math.max(0, resetTime - Date.now()))
+    }
+    await my_function()
 }
 
 await my_main()

@@ -15,9 +15,9 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-//TODO do a retry strategy
 async function fetchRank(matchId: string, summonerRegion: string, limits : LimitsRate): Promise<string | null> {
     amountOfRequest += 1
+    console.log("Entry Fetchrank")
 
     if (Date.now() > resetTime) {
         resetTime = Date.now() + limits.period
@@ -25,12 +25,15 @@ async function fetchRank(matchId: string, summonerRegion: string, limits : Limit
     } else {
         if (amountOfRequest > limits.amountAllowed) {
             console.error(`Maximun amount of request for FetchRank is being reached, waiting ${(resetTime - Date.now()) / 1000} seconds`)
-            // await sleep(resetTime - Date.now())
-            // return setTimeout(fetchRank, resetTime - Date.now(), matchId, summonerRegion, limits)
+            await sleep(resetTime - Date.now())
         }
     }
+    console.log("Ending Fetchrank")
+    return fetchRank_(matchId, summonerRegion)
+}
 
-    console.log("skipping awaiting")
+//TODO do a retry strategy
+async function fetchRank_(matchId: string, summonerRegion: string): Promise<string | null> {
     const url = `https://4nuo1ouibd.execute-api.eu-west-3.amazonaws.com/csw_api_proxy/fetchRank/${matchId}/${summonerRegion.toLowerCase()}`
     let res: Response
     try {
@@ -52,7 +55,9 @@ async function fetchRank(matchId: string, summonerRegion: string, limits : Limit
     }
     try {
         const x = await res.json()
-        const ranks : FetchRank[] = await res.json()
+        console.log(x)
+        const ranks = x
+        // const ranks : FetchRank[] = await res.json(
         for (const rank of ranks) {
             if (rank.queueType == 'RANKED_SOLO_5x5')
                 return rank.tier
