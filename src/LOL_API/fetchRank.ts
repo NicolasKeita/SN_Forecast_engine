@@ -2,6 +2,8 @@
     Path + Filename: src/LOL_API/fetchRank.ts
 */
 
+import {sleep} from '../my_JS_utils.js'
+
 let amountOfRequest = 0
 let resetTime = -1
 
@@ -11,14 +13,8 @@ type LimitsRate = {
     period : number //in miliseconds
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function fetchRank(matchId: string, summonerRegion: string, limits : LimitsRate): Promise<string | null> {
     amountOfRequest += 1
-    console.log("Entry Fetchrank")
-
     if (Date.now() > resetTime) {
         resetTime = Date.now() + limits.period
         amountOfRequest = 1
@@ -54,10 +50,7 @@ async function fetchRank_(matchId: string, summonerRegion: string): Promise<stri
             'CSW_error: following call : fetch(' + url + ' caught' + ' error;  ' + e)
     }
     try {
-        const x = await res.json()
-        console.log(x)
-        const ranks = x
-        // const ranks : FetchRank[] = await res.json(
+        const ranks : FetchRank[] = await res.json()
         for (const rank of ranks) {
             if (rank.queueType == 'RANKED_SOLO_5x5')
                 return rank.tier
