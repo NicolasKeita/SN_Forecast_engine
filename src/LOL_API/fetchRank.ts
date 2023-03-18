@@ -4,30 +4,17 @@
 
 import {LimitsRate, sleep} from '../my_JS_utils.js'
 
-let amountOfRequest = 0
 let resetTime = -1
 
 // TODO move to indepepdnant file and put Limits to every fetch outthere
 // Another TODO : add another limit rate, another block inside the object?
 
-// 100 requests per 60 seconds
-const fetchRankLimitRate : LimitsRate = {
-    amountAllowed: 98,
-    period: 60 * 1000
-}
+// fetchRank is limited to 100 requests per 60 seconds
+const fetchRankLimitRate = new LimitsRate(98, 60 * 1000);
 
-async function fetchRank(matchId: string, summonerRegion: string, limits : LimitsRate = fetchRankLimitRate): Promise<string | null> {
-    amountOfRequest += 1
-    if (Date.now() > resetTime) {
-        resetTime = Date.now() + limits.period
-        amountOfRequest = 1
-    } else {
-        if (amountOfRequest > limits.amountAllowed) {
-            console.error(`Maximun amount of request for FetchRank is being reached, waiting ${(resetTime - Date.now()) / 1000} seconds`)
-            await sleep(resetTime - Date.now())
-        }
-    }
-    return fetchRank_(matchId, summonerRegion)
+async function fetchRank(matchId: string, summonerRegion: string,
+                         limits : LimitsRate = fetchRankLimitRate): Promise<string | null> {
+    return await limits.patientlyExec(fetchRank_, matchId, summonerRegion)
 }
 
 //TODO do a retry strategy
