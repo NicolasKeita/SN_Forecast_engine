@@ -23,3 +23,8 @@ export async function mySetInterval(code: { (): Promise<void>; (): void }, perio
     await code()
     setTimeout(mySetInterval, Math.max(0, resetTime - Date.now()), code, period)
 }
+
+export type LimitsRate = {
+    amountAllowed : number,
+    period : number //in miliseconds
+}

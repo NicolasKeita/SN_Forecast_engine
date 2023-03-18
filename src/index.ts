@@ -4,7 +4,7 @@
 
 import fs from 'fs'
 
-import {fetchMatch, FetchMatchHistoryType, Participant} from './fetchMatch.js'
+import {fetchMatch, FetchMatchHistoryType, Participant} from './LOL_API/fetchMatch.js'
 import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
 import fetchRank from './LOL_API/fetchRank.js'
 import {Champion} from './Champion.js'
@@ -85,10 +85,7 @@ async function isMatchRelevant(matchInfos: FetchMatchHistoryType): Promise<boole
         return false
     for (let i = 0; i < 10; ++i) {
         const participant = matchInfos.info.participants[i]
-        console.log("FetchingRank Beginning h")
-        const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId,
-            {amountAllowed :1, period :60 * 1000})
-        console.log("FetchingRank endingg")
+        const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId)
         if (!participantRank) {
             console.log(`matchId: ${matchInfos.metadata.matchId} One guy was unranked`)
             return false
@@ -139,7 +136,7 @@ function getLastMatchIdAnalysed(filename : string) : string {
 }
 
 //let matchId = 'EUW1_6316539626' my ranked flex 59%
-async function my_main() {
+async function myMain() {
     let matchId = getLastMatchIdAnalysed(saveFilename)
 
     const fetchForecastAndSave = async () => {
@@ -158,4 +155,4 @@ async function my_main() {
     await mySetInterval(fetchForecastAndSave, 1000)
 }
 
-await my_main()
+await myMain()

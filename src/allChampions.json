@@ -22,7 +22,7 @@
     }
   },
   "Ahri":{
-    "opScore_CSW":64,
+    "opScore_CSW":61,
     "role":"middle",
     "name":"Ahri",
     "image":"Ahri.png",
@@ -151,7 +151,7 @@
     }
   },
   "Annie":{
-    "opScore_CSW":43,
+    "opScore_CSW":56,
     "role":"middle",
     "name":"Annie",
     "image":"Annie.png",
@@ -1411,7 +1411,7 @@
     }
   },
   "LeeSin":{
-    "opScore_CSW":52,
+    "opScore_CSW":56,
     "role":"jungle",
     "name":"Lee Sin",
     "image":"LeeSin.png",
@@ -1779,7 +1779,7 @@
     }
   },
   "Nautilus":{
-    "opScore_CSW":55,
+    "opScore_CSW":58,
     "role":"utility",
     "name":"Nautilus",
     "image":"Nautilus.png",
@@ -2101,7 +2101,7 @@
     }
   },
   "Rammus":{
-    "opScore_CSW":60,
+    "opScore_CSW":65,
     "role":"jungle",
     "name":"Rammus",
     "image":"Rammus.png",
@@ -2254,7 +2254,7 @@
     }
   },
   "Rumble":{
-    "opScore_CSW":50,
+    "opScore_CSW":55,
     "role":"top",
     "name":"Rumble",
     "image":"Rumble.png",
@@ -2765,7 +2765,7 @@
     }
   },
   "Thresh":{
-    "opScore_CSW":55,
+    "opScore_CSW":58,
     "role":"utility",
     "name":"Thresh",
     "image":"Thresh.png",
@@ -2912,7 +2912,7 @@
     }
   },
   "Urgot":{
-    "opScore_CSW":58,
+    "opScore_CSW":59,
     "role":"top",
     "name":"Urgot",
     "image":"Urgot.png",
@@ -3172,7 +3172,7 @@
     }
   },
   "Xayah":{
-    "opScore_CSW":55,
+    "opScore_CSW":62,
     "role":"bottom",
     "name":"Xayah",
     "image":"Xayah.png",
