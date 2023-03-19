@@ -3,6 +3,7 @@
 */
 
 import fs from 'fs'
+import {doWithRetry} from 'do-with-retry'
 
 export function openJson<JsonType>(filename : string) : JsonType {
     const rawContent = fs.readFileSync(filename,{encoding: 'utf8', flag: 'r'})
@@ -36,7 +37,7 @@ export class LimitsRate {
         this._counter = 0
         this._resetTime = -1
     }
-    async patientlyExec(code, ...args) {
+    private async patientlyExec(code, ...args) {
         this._counter += 1
         if (Date.now() > this._resetTime) {
             this._resetTime = Date.now() + this._period
@@ -48,5 +49,16 @@ export class LimitsRate {
             }
         }
         return code(...args)
+    }
+    async patientlyExecWithRetry(code, ...args) {
+        return await doWithRetry(async retry => {
+            try {
+                return await this.patientlyExec(code, ...args)
+            } catch (e) {
+                retry(e)
+            }
+        }).catch(e => {
+            throw e.cause
+        }) as any
     }
 }
