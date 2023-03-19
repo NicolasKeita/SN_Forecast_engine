@@ -2,7 +2,7 @@
     Path + Filename: src/LOL_API/fetchRank.ts
 */
 
-import {LimitsRate} from '../my_JS_utils.js'
+import {LimitsRate, myDoWithRetry, sleep} from '../my_JS_utils.js'
 
 // TODO move to indepepdnant file and put Limits to every fetch outthere
 // Another TODO : add another limit rate, another block inside the object?
@@ -14,7 +14,13 @@ export default async function fetchRank(matchId: string,
                                         summonerRegion: string,
                                         globalLimits : LimitsRate | null = null,
                                         endpointLimits : LimitsRate = fetchRankLimitRate) : Promise<string | null> {
-    return await endpointLimits.patientlyExecWithRetry(_fetchRank, matchId, summonerRegion)
+    await sleep(Math.max(globalLimits?.necessaryWaitingTime() || 0, endpointLimits.necessaryWaitingTime()))
+    const rank = await myDoWithRetry(_fetchRank, matchId, summonerRegion)
+    if (rank) {
+        globalLimits?.incrementCounter()
+        endpointLimits.incrementCounter()
+    }
+    return rank
 }
 
 async function _fetchRank(matchId: string, summonerRegion: string): Promise<string | null> {

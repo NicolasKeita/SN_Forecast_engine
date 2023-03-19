@@ -27,38 +27,42 @@ export async function mySetInterval(code: { (): Promise<void>; (): void }, perio
 
 export class LimitsRate {
     private readonly _amountAllowed: number
-    private readonly _period : number
-    private _counter : number
-    private _resetTime : number
+    private readonly _period: number
+    private _counter: number
+    private _resetTime: number
 
-    constructor(amountAllowed : number, period : number) {
+    constructor(amountAllowed: number, period: number) {
         this._amountAllowed = amountAllowed
         this._period = period // in miliseconds
         this._counter = 0
         this._resetTime = -1
     }
-    private async patientlyExec(code, ...args) {
+
+    necessaryWaitingTime() : number {
+        const dateNow = Date.now()
+        return (dateNow <= this._resetTime && this._counter >= this._amountAllowed) ? this._resetTime - dateNow : 0
+    }
+
+    incrementCounter() {
+        if (Date.now() > this._resetTime)
+            this._resetLimits()
         this._counter += 1
-        if (Date.now() > this._resetTime) {
-            this._resetTime = Date.now() + this._period
-            this._counter = 1
-        } else {
-            if (this._counter > this._amountAllowed) {
-                console.error(`Maximun amount of request for FetchRank is being reached, waiting ${(this._resetTime - Date.now()) / 1000} seconds`)
-                await sleep(this._resetTime - Date.now())
-            }
+    }
+
+    private _resetLimits() {
+        this._resetTime = Date.now() + this._period
+        this._counter = 0
+    }
+}
+
+export async function myDoWithRetry(code: (...args : any[]) => any, ...args: any[]) {
+    return await doWithRetry(async retry => {
+        try {
+            return await code(...args)
+        } catch (e) {
+            retry(e)
         }
-        return code(...args)
-    }
-    async patientlyExecWithRetry(code, ...args) {
-        return await doWithRetry(async retry => {
-            try {
-                return await this.patientlyExec(code, ...args)
-            } catch (e) {
-                retry(e)
-            }
-        }).catch(e => {
-            throw e.cause
-        }) as any
-    }
+    }).catch(e => {
+        console.error(e.cause)
+    }) as any
 }
