@@ -10,7 +10,10 @@ export function openJson<JsonType>(filename : string) : JsonType {
 }
 
 export function sleep(ms : number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    if (ms > 0) {
+        console.log(`Sleeping ${ms}`)
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }
 
 /* Slightly diff from original :

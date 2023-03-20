@@ -9,11 +9,13 @@ import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
 import fetchRank from './LOL_API/fetchRank.js'
 import {Champion} from './Champion.js'
 import allChampions from './allChampions.json' assert {type: "json"}
-import {mySetInterval, openJson} from './my_JS_utils.js'
+import {LimitsRate, mySetInterval, openJson} from './my_JS_utils.js'
 
 //const matchId = 'EUW1_6316539626'
 const region = 'euw1'
 const saveFilename = 'accumulatedForecasts.json'
+
+const globalFetchLimits = new LimitsRate(98, 2 * 60 * 1000)
 
 enum WinningTeam {
     TeamOne,
@@ -85,7 +87,7 @@ async function isMatchRelevant(matchInfos: FetchMatchHistoryType): Promise<boole
         return false
     for (let i = 0; i < 10; ++i) {
         const participant = matchInfos.info.participants[i]
-        const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId)
+        const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId, globalFetchLimits)
         if (!participantRank) {
             console.log(`matchId: ${matchInfos.metadata.matchId} One guy was unranked`)
             return false

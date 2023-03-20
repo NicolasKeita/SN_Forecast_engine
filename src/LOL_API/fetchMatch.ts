@@ -2,25 +2,31 @@
     Path + Filename: src/fetchMatch.ts
 */
 
-import {doWithRetry} from 'do-with-retry'
+import fetchBuilder from 'fetch-retry'
+import {LimitsRate, sleep} from '../my_JS_utils.js'
 
-export async function fetchMatch(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType | null> {
-    return await doWithRetry(async retry => {
-        try {
-            return await fetchMatch_(matchId, summonerRegion)
-        } catch (e) {
-            retry(e)
-        }
-    }).catch(e => {
-        throw e.cause
-    }) as FetchMatchHistoryType | null
+
+// 2000 every 10 secs
+const fetchMatchLimitRate = new LimitsRate(2000, 10 * 1000)
+
+export async function fetchMatch(matchId: string,
+                                 summonerRegion: string,
+                                 globalLimits : LimitsRate | null = null,
+                                 endpointLimits : LimitsRate = fetchMatchLimitRate): Promise<FetchMatchHistoryType | null> {
+    await sleep(Math.max(globalLimits?.necessaryWaitingTime() || 0, endpointLimits.necessaryWaitingTime()))
+    const matchInfos = await _fetchMatch(matchId, summonerRegion)
+    if (matchInfos) {
+        globalLimits?.incrementCounter()
+        endpointLimits.incrementCounter()
+    }
+    return matchInfos
 }
 
-async function fetchMatch_(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType | null> {
+async function _fetchMatch(matchId: string, summonerRegion: string): Promise<FetchMatchHistoryType | null> {
     const url = `https://4nuo1ouibd.execute-api.eu-west-3.amazonaws.com/csw_api_proxy/match/${summonerRegion.toLowerCase()}/${matchId}`
     let res: Response
     try {
-        res = await fetch(url, {
+        res = await fetchBuilder(global.fetch)(url, {
             headers: {
                 'X-Api-Key': 'gRpS5xTEMG9V5EQP4a0DB3SBk8XLGydq9HlTU5HZ'
             }
