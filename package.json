@@ -10,6 +10,6 @@
 		"@types/node": ">=18.15.3"
 	},
 	"dependencies": {
-		"do-with-retry": ">=1.0.3"
+		"fetch-retry": ">=5.0.4"
 	}
 }

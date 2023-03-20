@@ -3,18 +3,17 @@
 */
 
 import fs from 'fs'
-import {doWithRetry} from 'do-with-retry'
 
 export function openJson<JsonType>(filename : string) : JsonType {
     const rawContent = fs.readFileSync(filename,{encoding: 'utf8', flag: 'r'})
     return JSON.parse(rawContent)
 }
 
-export function sleep(ms) {
+export function sleep(ms : number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/* Slightly diff from orinal :
+/* Slightly diff from original :
 *   If the code executions takes more than the period,
 *   it waits for the code execution to end
 *   before executing it again.
@@ -33,7 +32,7 @@ export class LimitsRate {
 
     constructor(amountAllowed: number, period: number) {
         this._amountAllowed = amountAllowed
-        this._period = period // in miliseconds
+        this._period = period // in milliseconds
         this._counter = 0
         this._resetTime = -1
     }
@@ -53,16 +52,4 @@ export class LimitsRate {
         this._resetTime = Date.now() + this._period
         this._counter = 0
     }
-}
-
-export async function myDoWithRetry(code: (...args : any[]) => any, ...args: any[]) {
-    return await doWithRetry(async retry => {
-        try {
-            return await code(...args)
-        } catch (e) {
-            retry(e)
-        }
-    }).catch(e => {
-        console.error(e.cause)
-    }) as any
 }
