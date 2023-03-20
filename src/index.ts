@@ -15,8 +15,6 @@ import {LimitsRate, mySetInterval, openJson} from './my_JS_utils.js'
 const region = 'euw1'
 const saveFilename = 'accumulatedForecasts.json'
 
-const globalFetchLimits = new LimitsRate(98, 2 * 60 * 1000)
-
 enum WinningTeam {
     TeamOne,
     TeamTwo
@@ -76,7 +74,7 @@ function getNewMatchId(matchId : string) {
     return matchId.split('_')[0] + '_' + newMatchIdNumber
 }
 
-async function isMatchRelevant(matchInfos: FetchMatchHistoryType): Promise<boolean> {
+async function isMatchRelevant(matchInfos: FetchMatchHistoryType, globalFetchLimits): Promise<boolean> {
     enum RelevantRanks {
         "DIAMOND",
         "PLATINUM",
@@ -140,10 +138,11 @@ function getLastMatchIdAnalysed(filename : string) : string {
 //let matchId = 'EUW1_6316539626' my ranked flex 59%
 async function myMain() {
     let matchId = getLastMatchIdAnalysed(saveFilename)
+    const globalFetchLimits = new LimitsRate(90, 2 * 60 * 1000)
 
     const fetchForecastAndSave = async () => {
         const matchInfos = await fetchMatch(matchId, region, globalFetchLimits)
-        if (matchInfos && await isMatchRelevant(matchInfos)) {
+        if (matchInfos && await isMatchRelevant(matchInfos, globalFetchLimits)) {
             const forecast = createForecast(matchId, region, matchInfos)
             debugForecast(forecast)
             const accumulatedForecasts = openJson<AccumulatedForecasts>(saveFilename)

@@ -15,10 +15,8 @@ export async function fetchMatch(matchId: string,
                                  endpointLimits : LimitsRate = fetchMatchLimitRate): Promise<FetchMatchHistoryType | null> {
     await sleep(Math.max(globalLimits?.necessaryWaitingTime() || 0, endpointLimits.necessaryWaitingTime()))
     const matchInfos = await _fetchMatch(matchId, summonerRegion)
-    if (matchInfos) {
-        globalLimits?.incrementCounter()
-        endpointLimits.incrementCounter()
-    }
+    globalLimits?.incrementCounter()
+    endpointLimits.incrementCounter()
     return matchInfos
 }
 
@@ -31,6 +29,7 @@ async function _fetchMatch(matchId: string, summonerRegion: string): Promise<Fet
                 'X-Api-Key': 'gRpS5xTEMG9V5EQP4a0DB3SBk8XLGydq9HlTU5HZ'
             }
         })
+        console.log(res.headers.get('x-app-rate-limit-count'))
         if (res.status == 429) {
             throw new Error('429 code ')
         }
@@ -43,10 +42,7 @@ async function _fetchMatch(matchId: string, summonerRegion: string): Promise<Fet
             'CSW_error: following call : fetch(' + url + ' caught' + ' error;  ' + e)
     }
     try {
-        const json = await res.json()
-        // console.log(json)
-        return json
-        //return Convert.toFetchMatchHistoryType(await res.text())
+        return await res.json()
     } catch (err: unknown) {
         const e = err as Error
         console.error(`Error while converting fetchMatch result to json. fetchMatch response number : ${res.status} and message : ${e.message}`)

@@ -9,7 +9,7 @@ import fetchBuilder from 'fetch-retry'
 // Another TODO : add another limit rate, another block inside the object?
 
 // fetchRank is limited to 100 requests per 60 seconds
-const fetchRankLimitRate = new LimitsRate(98, 60 * 1000);
+const fetchRankLimitRate = new LimitsRate(90, 60 * 1000);
 
 export default async function fetchRank(matchId: string,
                                         summonerRegion: string,
@@ -17,12 +17,11 @@ export default async function fetchRank(matchId: string,
                                         endpointLimits : LimitsRate = fetchRankLimitRate) : Promise<string | null> {
     await sleep(Math.max(globalLimits?.necessaryWaitingTime() || 0, endpointLimits.necessaryWaitingTime()))
     const rank = await _fetchRank(matchId, summonerRegion)
-    if (rank) {
-        globalLimits?.incrementCounter()
-        endpointLimits.incrementCounter()
-    }
+    globalLimits?.incrementCounter()
+    endpointLimits.incrementCounter()
     return rank
 }
+
 
 async function _fetchRank(matchId: string, summonerRegion: string): Promise<string | null> {
     const url = `https://4nuo1ouibd.execute-api.eu-west-3.amazonaws.com/csw_api_proxy/fetchRank/${matchId}/${summonerRegion.toLowerCase()}`
@@ -33,6 +32,7 @@ async function _fetchRank(matchId: string, summonerRegion: string): Promise<stri
                 'X-Api-Key': 'gRpS5xTEMG9V5EQP4a0DB3SBk8XLGydq9HlTU5HZ'
             }
         })
+        console.log(res.headers.get('x-app-rate-limit-count'))
         if (res.status == 429) {
             throw new Error('429 code ')
         }
