@@ -142,7 +142,7 @@ async function myMain() {
     let matchId = getLastMatchIdAnalysed(saveFilename)
 
     const fetchForecastAndSave = async () => {
-        const matchInfos = await fetchMatch(matchId, region)
+        const matchInfos = await fetchMatch(matchId, region, globalFetchLimits)
         if (matchInfos && await isMatchRelevant(matchInfos)) {
             const forecast = createForecast(matchId, region, matchInfos)
             debugForecast(forecast)
