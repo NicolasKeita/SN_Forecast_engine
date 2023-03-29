@@ -3,6 +3,8 @@
 */
 
 import fs from 'fs'
+import * as util from 'util'
+import {log} from 'util'
 
 export function openJson<JsonType>(filename : string) : JsonType {
     const rawContent = fs.readFileSync(filename,{encoding: 'utf8', flag: 'r'})
@@ -49,12 +51,24 @@ export class LimitsRate {
         if (Date.now() > this._resetTime)
             this._resetLimits()
         this._counter += 1
-        console.log(`cOUNTER ${this._counter} perdiod : ${this._period}`)
+        //console.log(`cOUNTER ${this._counter} perdiod : ${this._period}`)
     }
 
     private _resetLimits() {
-        console.log(`RESET ${this._period}`)
+        //console.log(`RESET ${this._period}`)
         this._resetTime = Date.now() + this._period
         this._counter = 0
     }
 }
+
+export function logToFile(any : unknown, filename : string, displayInConsole = false) {
+    let logLine = util.inspect(any)
+    const date = new Date();
+    const formattedDate = date.toLocaleString('en-US', { timeZone: 'Europe/Berlin'});
+    logLine = formattedDate + ' || ' + logLine
+    if (displayInConsole)
+        console.log(logLine)
+    fs.writeFileSync(filename, logLine, {flag: 'a'})
+}
+
+

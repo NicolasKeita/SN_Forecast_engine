@@ -4,16 +4,16 @@
 
 import fs from 'fs'
 
-import {fetchMatch, FetchMatchHistoryType, Participant} from './LOL_API/fetchMatch.js'
+import { fetchMatch, FetchMatchHistoryType, Participant} from './LOL_API/fetchMatch.js'
 import {computeWinPercentage} from './computeWinrateBetweenTwoTeams.js'
-import fetchRank from './LOL_API/fetchRank.js'
-import {Champion} from './Champion.js'
+import { fetchRank } from './LOL_API/fetchRank.js'
+import { Champion } from './Champion.js'
 import allChampions from './allChampions.json' assert {type: "json"}
-import {LimitsRate, mySetInterval, openJson} from './my_JS_utils.js'
+import {LimitsRate, logToFile, mySetInterval, openJson} from './my_JS_utils.js'
 
-//const matchId = 'EUW1_6316539626'
 const region = 'euw1'
 const saveFilename = 'accumulatedForecasts.json'
+const logFilename = 'SN_forecast.log'
 
 enum WinningTeam {
     TeamOne,
@@ -120,7 +120,8 @@ function debugForecast(forecast : Forecast) {
             teamTwo.push(`champId not found ${champId}`)
     }
     console.log("Team1")
-    console.log(teamOne)
+    logToFile(teamOne, logFilename, true)
+    console.debug(teamOne)
     console.log("Team2")
     console.log(teamTwo)
     if ((forecast.winPercentage > 50 && forecast.winner == WinningTeam.TeamOne)

@@ -52,17 +52,6 @@ async function _fetchMatch(matchId: string, summonerRegion: string): Promise<Fet
     }
 }
 
-
-
-// To parse this data:
-//
-//   import { Convert, FetchMatchHistoryType } from "./file";
-//
-//   const fetchMatchHistoryType = Convert.toFetchMatchHistoryType(json);
-//
-// These functions will throw an error if the JSON doesn't
-// match the expected interface, even if the JSON is valid.
-
 export interface FetchMatchHistoryType {
     metadata: Metadata;
     info: Info;
