@@ -5,6 +5,7 @@
 import allChamps from "./allChampions.json" assert {type: "json"}
 import {Champion, championConstructor} from './Champion.js'
 import {ChampionAttributes, ChampionTagsType, getTagsBonuses} from './champTags.js'
+import {logToFile} from './my_JS_utils.js'
 //TODO do a type check for json ? would help to narrow/secure deferencing
 //TODO convert allChamps id of the champion to number instead of string
 
@@ -42,7 +43,7 @@ function adjustTags(tags: ChampionTagsType) {
 
 const allChampsWithTags = Object.values(allChamps).map((champ) => {
 	if (champ.tags === undefined) {
-		console.log(champ.name)
+		logToFile(champ.name)
 		throw new Error('KO')
 	}
 	return championConstructor(

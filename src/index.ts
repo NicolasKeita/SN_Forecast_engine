@@ -87,21 +87,21 @@ async function isMatchRelevant(matchInfos: FetchMatchHistoryType, globalFetchLim
         const participant = matchInfos.info.participants[i]
         const participantRank = await fetchRank(participant.summonerId, matchInfos.info.platformId, globalFetchLimits)
         if (!participantRank) {
-            console.log(`matchId: ${matchInfos.metadata.matchId} One guy was unranked`)
+            logToFile(`matchId: ${matchInfos.metadata.matchId} One guy was unranked`)
             return false
         }
         if (participantRank && !(participantRank in RelevantRanks)) {
-            console.log(`matchId: ${matchInfos.metadata.matchId} ${participantRank} RANK not interesting`)
+            logToFile(`matchId: ${matchInfos.metadata.matchId} ${participantRank} RANK not interesting`)
             return false
         }
         if (i == 9)
-            console.log(`Player name : ${participant.summonerName} and his elo : ${participantRank}`)
+            logToFile(`Player name : ${participant.summonerName} and his elo : ${participantRank}`)
     }
     return true
 }
 
 function debugForecast(forecast : Forecast) {
-    console.log(`matchId: ${forecast.matchId} forecast accomplished`)
+    logToFile(`matchId: ${forecast.matchId} forecast accomplished`)
     const teamOne : string[] = []
     const teamTwo : string[] = []
     const allChamps = allChampions
@@ -119,16 +119,15 @@ function debugForecast(forecast : Forecast) {
         else
             teamTwo.push(`champId not found ${champId}`)
     }
-    console.log("Team1")
-    logToFile(teamOne, logFilename, true)
-    console.debug(teamOne)
-    console.log("Team2")
-    console.log(teamTwo)
+    logToFile('Team1')
+    logToFile(teamOne)
+    logToFile("Team2")
+    logToFile(teamTwo)
     if ((forecast.winPercentage > 50 && forecast.winner == WinningTeam.TeamOne)
         || (forecast.winPercentage < 50 && forecast.winner == WinningTeam.TeamTwo))
-        console.log(`win percentage : ${forecast.winPercentage}% CORRECT winner is team ${forecast.winner + 1}`)
+        logToFile(`win percentage : ${forecast.winPercentage}% CORRECT winner is team ${forecast.winner + 1}`)
     else
-        console.log(`win percentage : ${forecast.winPercentage}% INCORRECT winner is team ${forecast.winner + 1}`)
+        logToFile(`win percentage : ${forecast.winPercentage}% INCORRECT winner is team ${forecast.winner + 1}`)
 }
 
 function getLastMatchIdAnalysed(filename : string) : string {
@@ -150,7 +149,7 @@ async function myMain() {
             accumulateForecast(accumulatedForecasts, forecast)
             fs.writeFileSync(saveFilename, JSON.stringify(accumulatedForecasts, null, 3))
         } else if (matchInfos && matchInfos.info.queueId != 420) {
-            console.log('matchId: ' + matchId + ' unwanted queue id : ' + matchInfos.info.queueId)
+            logToFile('matchId: ' + matchId + ' unwanted queue id : ' + matchInfos.info.queueId)
         }
         matchId = getNewMatchId(matchId)
     }

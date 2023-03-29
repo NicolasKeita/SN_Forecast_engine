@@ -3,7 +3,7 @@
 */
 
 import fetchBuilder from 'fetch-retry'
-import {LimitsRate, sleep} from '../my_JS_utils.js'
+import {LimitsRate, logToFile, sleep} from '../my_JS_utils.js'
 
 
 // 2000 every 10 secs
@@ -29,12 +29,11 @@ async function _fetchMatch(matchId: string, summonerRegion: string): Promise<Fet
                 'X-Api-Key': 'gRpS5xTEMG9V5EQP4a0DB3SBk8XLGydq9HlTU5HZ'
             }
         })
-        console.log(res.headers.get('x-app-rate-limit-count'))
         if (res.status == 429) {
             throw new Error('429 code ')
         }
         else if (res.status == 404) {
-            console.error("matchId: " + matchId + " = " + res.statusText)
+            logToFile("matchId: " + matchId + " = " + res.statusText)
             return null
         }
     } catch (e) {

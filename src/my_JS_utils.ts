@@ -4,7 +4,6 @@
 
 import fs from 'fs'
 import * as util from 'util'
-import {log} from 'util'
 
 export function openJson<JsonType>(filename : string) : JsonType {
     const rawContent = fs.readFileSync(filename,{encoding: 'utf8', flag: 'r'})
@@ -13,7 +12,7 @@ export function openJson<JsonType>(filename : string) : JsonType {
 
 export function sleep(ms : number) {
     if (ms > 0) {
-        console.log(`Sleeping ${ms}`)
+        logToFile(`Sleeping ${ms}`, 'SN_forecast.log')
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
@@ -51,23 +50,25 @@ export class LimitsRate {
         if (Date.now() > this._resetTime)
             this._resetLimits()
         this._counter += 1
-        //console.log(`cOUNTER ${this._counter} perdiod : ${this._period}`)
+        //logToFile(`cOUNTER ${this._counter} perdiod : ${this._period}`)
     }
 
     private _resetLimits() {
-        //console.log(`RESET ${this._period}`)
+        //logToFile(`RESET ${this._period}`)
         this._resetTime = Date.now() + this._period
         this._counter = 0
     }
 }
 
-export function logToFile(any : unknown, filename : string, displayInConsole = false) {
+const logFilename = 'SN_forecast.log'
+export function logToFile(any : unknown, filename : string = logFilename, displayInConsole = true) {
     let logLine = util.inspect(any)
     const date = new Date();
     const formattedDate = date.toLocaleString('en-US', { timeZone: 'Europe/Berlin'});
     logLine = formattedDate + ' || ' + logLine
     if (displayInConsole)
-        console.log(logLine)
+        logToFile(logLine)
+    logLine = logLine + '\n'
     fs.writeFileSync(filename, logLine, {flag: 'a'})
 }
 
